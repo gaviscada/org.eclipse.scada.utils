@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2006, 2015 TH4 SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     TH4 SYSTEMS GmbH - initial API and implementation
- *     IBH SYSTEMS GmbH - add constructor
+ *     IBH SYSTEMS GmbH - add constructor, add default builder method
  *******************************************************************************/
 package org.eclipse.scada.utils.concurrent;
 
@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -27,6 +28,11 @@ public class ScheduledExportedExecutorService implements ScheduledExecutorServic
     private final ScheduledThreadPoolExecutor executor;
 
     private final ExecutorServiceExporterImpl executorExporter;
+
+    public static ScheduledExportedExecutorService newSingleThreadExportedScheduledExecutor ( final String name )
+    {
+        return new ScheduledExportedExecutorService ( name );
+    }
 
     /**
      * Create a scheduled executor service with a maximum of 1 thread
@@ -42,6 +48,12 @@ public class ScheduledExportedExecutorService implements ScheduledExecutorServic
     public ScheduledExportedExecutorService ( final String name, final int corePoolSize )
     {
         this.executor = new ScheduledThreadPoolExecutor ( corePoolSize, new NamedThreadFactory ( name ) );
+        this.executorExporter = new ExecutorServiceExporterImpl ( this.executor, name );
+    }
+
+    public ScheduledExportedExecutorService ( final String name, final int corePoolSize, final ThreadFactory threadFactory )
+    {
+        this.executor = new ScheduledThreadPoolExecutor ( corePoolSize, threadFactory );
         this.executorExporter = new ExecutorServiceExporterImpl ( this.executor, name );
     }
 
@@ -68,6 +80,7 @@ public class ScheduledExportedExecutorService implements ScheduledExecutorServic
     @Override
     public List<Runnable> shutdownNow ()
     {
+        this.executorExporter.dispose ();
         return this.executor.shutdownNow ();
     }
 

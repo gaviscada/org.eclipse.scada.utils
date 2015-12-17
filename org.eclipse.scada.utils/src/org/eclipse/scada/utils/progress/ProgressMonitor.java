@@ -1,19 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     TH4 SYSTEMS GmbH - initial API and implementation
+ *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.scada.utils.exec;
+package org.eclipse.scada.utils.progress;
 
-public enum LongRunningState
+public interface ProgressMonitor
 {
-    REQUESTED,
-    RUNNING,
-    FAILURE,
-    SUCCESS,
+    public void beginTask ( String name, int totalWork );
+
+    public void worked ( int work );
+
+    public void done ();
 }
